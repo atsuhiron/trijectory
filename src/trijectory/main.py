@@ -1,5 +1,6 @@
 import numpy as np
 
+from trijectory.engine.python_engine import Euler
 from trijectory.type_aliases import Arr64
 
 
@@ -16,19 +17,42 @@ def calc_vectored_inv_square(r: Arr64) -> Arr64:  # (body, body, spa_axis) -> (b
     return rel / np.power(non_zero_dist[:, :, np.newaxis], 3)
 
 
-def f(rv: Arr64, mass: Arr64) -> Arr64:  # (body, 2, spa_axis), (body,) -> (body, 2, spa_axis)
-    inv_square = calc_vectored_inv_square(rv[0])
-    ret = np.empty(rv.shape)
-    for i_body in range(len(rv)):
-        ret[i_body, 0] = rv[i_body, 1]
-        ret[i_body, 1] = np.sum(inv_square[i_body] * mass[:, np.newaxis], axis=1)
-    return ret
+def f(r: Arr64, v: Arr64, mass: Arr64) -> tuple[Arr64, Arr64]:  # ((body, 2, spa_axis), (body,)) -> (body, 2, spa_axis)
+    inv_square = calc_vectored_inv_square(r)
+    ret_r = np.empty(r.shape)
+    ret_v = np.empty(v.shape)
+    for i_body in range(len(inv_square)):
+        ret_r[i_body] = v[i_body]
+        fv = np.sum(inv_square[i_body] * mass[:, np.newaxis], axis=0)
+        ret_v[i_body] = fv
+    return ret_r, ret_v
 
 
 if __name__ == "__main__":
-    r0 = np.array([[0, 0], [10, 0]], dtype=np.float64)  # (body, spa_axis)
-    v0 = np.array([[0, -1], [0, 1]], dtype=np.float64)
-    rv0 = np.array([r0, v0])
+    import matplotlib.pyplot as plt
+
+    r0 = np.array([[0, 0], [1, 0], [0, 1]], dtype=np.float64)  # (body, spa_axis)
+    v0 = np.array([[0, 0], [0, 0], [0, 0]], dtype=np.float64)  # (body, spa_axis)
     ma = np.ones(len(r0), dtype=np.float64)
-    print(rv0[1])
-    print(f(rv0, ma)[1])
+
+    euler = Euler(f)
+    step = 40
+    log_arr = np.zeros((step + 1, 2, *r0.shape))    # (step, 2, body, spa_axis)
+    log_arr[0] = np.array([r0, v0])
+    _r = r0
+    _v = v0
+    delta_t = 0.02
+    for step_i in range(step):
+        _r, _v = euler.step(_r, _v, ma, delta_t)
+        log_arr[step_i + 1, 0] = _r
+        log_arr[step_i + 1, 1] = _v
+
+    for body_i in range(len(r0)):
+        plt.plot(
+            log_arr[:, 0, body_i, 0], log_arr[:, 0, body_i, 1],
+            ls="-",
+            marker="x",
+            label=str(body_i),
+        )
+    plt.legend()
+    plt.show()
