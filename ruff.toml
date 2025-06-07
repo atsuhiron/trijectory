@@ -1,0 +1,23 @@
+target-version = "py313"
+line-length = 119
+
+[lint]
+select = ["ALL"]
+ignore = [
+    "D",
+    "FIX002",
+    "ERA001",
+]
+
+[lint.per-file-ignores]
+"__init__.py" = [
+    "F401"      # The imported class is rarely used within __init__.py
+]
+"tests/**.py" = [
+    "S101",     # pytest use assert
+]
+
+[format]
+indent-style = "space"
+quote-style = "double"
+skip-magic-trailing-comma = false
