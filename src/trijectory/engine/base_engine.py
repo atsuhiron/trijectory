@@ -6,9 +6,9 @@ from trijectory.type_aliases import ArrF64
 
 class BaseEngine(metaclass=abc.ABCMeta):
     @abc.abstractmethod
-    def life(self, x: ArrF64, v: ArrF64, param: TrajectoryParam) -> float:
+    def life(self, r: ArrF64, v: ArrF64, param: TrajectoryParam) -> float:
         pass
 
     @abc.abstractmethod
-    def trajectory(self, x: ArrF64, v: ArrF64, param: TrajectoryParam) -> ArrF64:
+    def trajectory(self, r: ArrF64, v: ArrF64, param: TrajectoryParam) -> tuple[ArrF64, ArrF64, float]:
         pass
