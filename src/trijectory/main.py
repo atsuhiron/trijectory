@@ -2,7 +2,7 @@ import numpy as np
 from tqdm import tqdm
 
 from trijectory.engine.engine_param import TrajectoryParam
-from trijectory.engine.python_engine import Euler, NumericalMethodsForODE, RungeKutta22
+from trijectory.engine.python_engine import Euler, NumericalMethodsForODE, RungeKutta22, RungeKutta44
 from trijectory.type_aliases import ArrF64
 
 
@@ -59,28 +59,44 @@ if __name__ == "__main__":
 
     euler = Euler(f)
     rk22 = RungeKutta22(f)
+    rk44 = RungeKutta44(f)
     _param = TrajectoryParam(
-        max_time=0.8,
-        time_step=0.01,
+        max_time=0.79,
+        time_step=0.005,
         mass=ma,
     )
     log_arr_euler = run(euler, _param, r0, v0)
     log_arr_rk22 = run(rk22, _param, r0, v0)
+    log_arr_rk44 = run(rk44, _param, r0, v0)
 
+    colors = ("r", "g", "b")
     for body_i in range(len(r0)):
         plt.plot(
             log_arr_euler[:, 0, body_i, 0],
             log_arr_euler[:, 0, body_i, 1],
             ls="-",
-            marker="x",
+            marker=None,
+            color=colors[body_i],
+            alpha=0.2,
             label="euler" + str(body_i),
         )
         plt.plot(
             log_arr_rk22[:, 0, body_i, 0],
             log_arr_rk22[:, 0, body_i, 1],
             ls="-",
-            marker="x",
+            marker=None,
+            color=colors[body_i],
+            alpha=0.5,
             label="rk22" + str(body_i),
+        )
+        plt.plot(
+            log_arr_rk44[:, 0, body_i, 0],
+            log_arr_rk44[:, 0, body_i, 1],
+            ls="-",
+            marker=None,
+            color=colors[body_i],
+            alpha=1.0,
+            label="rk44" + str(body_i),
         )
     plt.legend()
     plt.show()
