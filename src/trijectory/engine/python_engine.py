@@ -2,7 +2,6 @@ import abc
 from collections.abc import Callable
 
 import numpy as np
-from tqdm import tqdm
 
 from trijectory.engine.base_engine import BaseEngine
 from trijectory.engine.engine_param import TrajectoryParam
@@ -145,7 +144,7 @@ class PythonEngine(BaseEngine):
         _r = r
         _v = v
 
-        for step_i in tqdm(range(iterations)):
+        for step_i in range(iterations):
             _r, _v = solver.step(_r, _v, m, param.time_step)
             _be = calc_bound_energy(_r, _v, m)
             if step_i % param.log_rate == 0:

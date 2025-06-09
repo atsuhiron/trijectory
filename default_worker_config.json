@@ -1,0 +1,8 @@
+{
+  "name": "w_01",
+  "process_num": 2,
+  "chunk_size": 2,
+  "max_size": 10,
+  "wait_seconds_on_no_trial": 100,
+  "table_node_request_timeout_seconds": 60
+}

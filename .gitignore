@@ -192,3 +192,6 @@ Cargo.lock
 # End of https://www.toptal.com/developers/gitignore/api/python,rust
 
 uv.lock
+worker_config.json
+table_config.json
+curriculum.json

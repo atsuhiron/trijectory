@@ -5,12 +5,13 @@ from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
 
 if __name__ == "__main__":
-    r0 = np.array([[0, 0], [1, 0], [0, 1]], dtype=np.float64)  # (body, space)
-    v0 = np.array([[0, 0], [0, 0], [1, 0]], dtype=np.float64)  # (body, space)
+    sqrt3 = np.sqrt(3)
+    r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
+    v0 = np.array([[sqrt3 * 2 / 3, 0], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.75
     ma = np.ones(len(r0), dtype=np.float64)
 
     _param = TrajectoryParam(
-        max_time=2.0,
+        max_time=3.0,
         time_step=0.0001,
         log_rate=100,
         escape_debounce_time=0.3,
@@ -28,7 +29,7 @@ if __name__ == "__main__":
             ls="-",
             marker=None,
             color=colors[body_i],
-            label="rk44 " + str(body_i),
+            label=str(body_i),
         )
     axes[0].legend()
 
