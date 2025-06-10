@@ -47,14 +47,14 @@ def register_study(table_ip: str) -> None:
                     LineSegmentRegistry(
                         name="vx",
                         type="float",
-                        size=portablize("int", vx_size),
+                        size=str(portablize("int", vx_size)),
                         step=portablize("float", vx_step),
                         start=portablize("float", vx_start),
                     ),
                     LineSegmentRegistry(
                         name="vy",
                         type="float",
-                        size=portablize("int", vy_size),
+                        size=str(portablize("int", vy_size)),
                         step=portablize("float", vy_step),
                         start=portablize("float", vy_start),
                     ),
