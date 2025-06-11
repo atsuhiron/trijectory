@@ -7,7 +7,7 @@ from trijectory.engine.python_engine import PythonEngine
 if __name__ == "__main__":
     sqrt3 = np.sqrt(3)
     r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
-    v0 = np.array([[sqrt3 * 2 / 3, 0], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.75
+    v0 = np.array([[sqrt3 * 2 / 3, 0], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.5
     ma = np.ones(len(r0), dtype=np.float64)
 
     _param = TrajectoryParam(
@@ -15,6 +15,7 @@ if __name__ == "__main__":
         time_step=0.0001,
         log_rate=100,
         escape_debounce_time=0.3,
+        min_distance=0.01,
         method="rk44",
         mass=ma,
     )

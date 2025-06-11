@@ -10,5 +10,6 @@ class TrajectoryParam:
     time_step: float
     log_rate: int
     escape_debounce_time: float
+    min_distance: float
     method: Literal["euler", "rk22", "rk44"]
     mass: ArrF64 | None

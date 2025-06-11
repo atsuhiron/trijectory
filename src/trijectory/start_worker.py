@@ -26,6 +26,7 @@ class TrijectoryRunner(AutoMPTrialRunner):
             time_step=0.0001,
             log_rate=100,
             escape_debounce_time=0.3,
+            min_distance=0.01,
             method="rk44",
             mass=ma,
         )

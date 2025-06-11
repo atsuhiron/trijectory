@@ -16,6 +16,7 @@ ignore = [
 ]
 "tests/**.py" = [
     "S101",     # pytest use assert
+    "PLR2004",  # use magic number
 ]
 
 [format]
