@@ -33,14 +33,14 @@ def extract_storage(curriculum: CurriculumModel, study_id: str | None = None) ->
 
 
 def extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
-    z_list = list(filter(lambda z: isinstance(z, ScalarValue), [r.result for r in storage.result]))
+    z_list = list(filter(lambda z: isinstance(z, ScalarValue), [r.result for r in storage.results]))
     xyz_list: list[tuple[float, float, float]] = [
         (
             numerize("float", r.params[0].value),
             numerize("float", r.params[1].value),
             numerize("float", z.value),
         )
-        for r, z in zip(storage.result, z_list, strict=True)
+        for r, z in zip(storage.results, z_list, strict=True)
     ]
     xyz_list = sorted(xyz_list, key=lambda r: r[1])
 
@@ -59,7 +59,7 @@ def extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
 
 
 def extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
-    mapping = storage.result[0]
+    mapping = storage.results[0]
     return mapping.params[0].name, mapping.params[1].name
 
 

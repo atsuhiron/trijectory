@@ -60,6 +60,7 @@ def main() -> None:
     worker = Worker(
         trial_runner=TrijectoryRunner(),
         ip=args.table_ip,
+        port=8000,
         config=config,
     )
     worker.start()

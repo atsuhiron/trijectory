@@ -62,7 +62,7 @@ def register_study(table_ip: str) -> None:
             ),
         ),
     )
-    client = TableNodeClient(table_ip, name="admin node")
+    client = TableNodeClient(table_ip, port=8000, name="admin node")
     client.register_study(study_register_param)
 
 
