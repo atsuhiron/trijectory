@@ -1,10 +1,26 @@
-import matplotlib.pyplot as plt
+import time
+
 import numpy as np
+from lite_dist2.table_node_api.start_table_api import start_in_thread
 
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
+from trijectory.node_ops import register_study, start_worker
+from trijectory.plotter import plot_map, plot_trajectory
 
-if __name__ == "__main__":
+
+def run_life_gird_in_local() -> None:
+    table_thread = start_in_thread()
+    time.sleep(1)
+    register_study("127.0.0.1")
+    start_worker("127.0.0.1", stop_at_no_trial=True)
+
+    table_thread.stop()
+    table_thread.join(timeout=1)
+    plot_map()
+
+
+def run_trajectory_specific() -> None:
     sqrt3 = np.sqrt(3)
     r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
     v0 = np.array([[sqrt3 * 2 / 3, 0], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.5
@@ -20,25 +36,8 @@ if __name__ == "__main__":
         mass=ma,
     )
     trajectory, bound_energy, life = PythonEngine().trajectory(r0, v0, _param)
+    plot_trajectory(trajectory, bound_energy, _param)
 
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharex=False)
-    colors = ("r", "g", "b")
-    for body_i in range(len(r0)):
-        axes[0].plot(
-            trajectory[:, 0, body_i, 0],
-            trajectory[:, 0, body_i, 1],
-            ls="-",
-            marker=None,
-            color=colors[body_i],
-            label=str(body_i),
-        )
-    axes[0].legend()
 
-    axes[1].plot(
-        np.linspace(0, len(bound_energy) * _param.time_step * _param.log_rate, len(bound_energy)),
-        bound_energy,
-        color="k",
-        label="rk44 be",
-    )
-    axes[1].legend()
-    plt.show()
+if __name__ == "__main__":
+    run_life_gird_in_local()

@@ -8,6 +8,9 @@ ignore = [
     "FIX002",
     "ERA001",
     "FBT001",
+    "FBT002",
+    "EM101",
+    "TRY003",
 ]
 
 [lint.per-file-ignores]

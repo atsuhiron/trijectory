@@ -9,16 +9,17 @@ from lite_dist2.curriculum_models.curriculum import CurriculumModel
 from lite_dist2.curriculum_models.study_portables import StudyStorage
 from lite_dist2.value_models.point import ScalarValue
 
+from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.type_aliases import ArrF64
 
 
-def load_curriculum() -> CurriculumModel:
+def _load_curriculum() -> CurriculumModel:
     with Path("curriculum.json").open("r") as f:
         json_data = json.load(f)
         return CurriculumModel.model_validate(json_data)
 
 
-def extract_storage(curriculum: CurriculumModel, study_id: str | None = None) -> StudyStorage:
+def _extract_storage(curriculum: CurriculumModel, study_id: str | None = None) -> StudyStorage:
     if len(curriculum.storages) == 0:
         msg = "No storage is found in curriculum"
         raise ValueError(msg)
@@ -32,7 +33,7 @@ def extract_storage(curriculum: CurriculumModel, study_id: str | None = None) ->
     return storages[0]
 
 
-def extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
+def _extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
     z_list = list(filter(lambda z: isinstance(z, ScalarValue), [r.result for r in storage.results]))
     xyz_list: list[tuple[float, float, float]] = [
         (
@@ -58,12 +59,12 @@ def extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
     return arr, y_axis, x_axis
 
 
-def extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
+def _extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
     mapping = storage.results[0]
     return mapping.params[0].name, mapping.params[1].name
 
 
-def plot(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x_axis_name: str | None) -> None:
+def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x_axis_name: str | None) -> None:
     plt.imshow(arr)
     plt.xticks(ticks=np.arange(len(x_axis)), labels=np.round(x_axis, 2))
     plt.yticks(ticks=np.arange(len(y_axis)), labels=np.round(y_axis, 2))
@@ -73,8 +74,40 @@ def plot(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x
     plt.show()
 
 
+def plot_map(study_id: str | None = None) -> None:
+    storage = _extract_storage(_load_curriculum(), study_id)
+    arr, y_axis, x_axis = _extract_result_arr(storage)
+    y_name, x_name = _extract_axis_name(storage)
+    _plot_map(arr, y_axis, x_axis, y_name, x_name)
+
+
+def plot_trajectory(trajectory: ArrF64, metric: ArrF64, param: TrajectoryParam | None) -> None:
+    fig, axes = plt.subplots(nrows=1, ncols=2, sharex=False)
+    colors = ("r", "g", "b")
+    for body_i in range(trajectory.shape[2]):  # (step, 2, body, space)
+        axes[0].plot(
+            trajectory[:, 0, body_i, 0],
+            trajectory[:, 0, body_i, 1],
+            ls="-",
+            marker=None,
+            color=colors[body_i],
+            label=str(body_i),
+        )
+    axes[0].legend()
+
+    if param is None:
+        x_range = np.arange(len(metric))
+    else:
+        x_range = np.linspace(0, len(metric) * param.time_step * param.log_rate, len(metric))
+    axes[1].plot(
+        x_range,
+        metric,
+        color="k",
+        label="metric",
+    )
+    axes[1].legend()
+    plt.show()
+
+
 if __name__ == "__main__":
-    _storage = extract_storage(load_curriculum())
-    _arr, _y_axis, _x_axis = extract_result_arr(_storage)
-    _y_name, _x_name = extract_axis_name(_storage)
-    plot(_arr, _y_axis, _x_axis, _y_name, _x_name)
+    plot_map()
