@@ -3,6 +3,7 @@ import time
 import numpy as np
 from lite_dist2.table_node_api.start_table_api import start_in_thread
 
+import rs_trijectory
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
 from trijectory.node_ops import register_study, start_worker
@@ -39,5 +40,11 @@ def run_trajectory_specific() -> None:
     plot_trajectory(trajectory, bound_energy, _param)
 
 
+def run_rust_code() -> None:
+    result = rs_trijectory.add(1, 3)
+    print(f"1 + 3 = {result}")  # noqa: T201
+
+
 if __name__ == "__main__":
+    run_rust_code()
     run_life_gird_in_local()

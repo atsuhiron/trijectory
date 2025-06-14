@@ -1,6 +1,11 @@
 [package]
-name = "trijectory"
+name = "rs_trijectory"
 version = "0.1.0"
 edition = "2024"
 
+[lib]
+name = "rs_trijectory"
+crate-type = ["cdylib", "rlib"]
+
 [dependencies]
+pyo3 = { version = "0.25.1", features = ["extension-module"] }

@@ -43,9 +43,9 @@ class TrijectoryRunner(AutoMPTrialRunner):
 
 
 def _load_worker_config() -> WorkerConfig:
-    config = Path(__file__).parent.parent.parent / "worker_config.json"
+    config = Path(__file__).parent.parent / "worker_config.json"
     if not config.exists():
-        default_config = Path(__file__).parent.parent.parent / "default_worker_config.json"
+        default_config = Path(__file__).parent.parent / "default_worker_config.json"
         shutil.copyfile(default_config, config)
         new_name = input("Enter new worker config name: ")
 
