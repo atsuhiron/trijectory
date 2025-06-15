@@ -41,7 +41,8 @@ def run_trajectory_specific() -> None:
 
 
 def run_rust_code() -> None:
-    result = rs_trijectory.add(1, 3)
+    r0 = np.array([[0, np.sqrt(3) * 2 / 3], [-1, -np.sqrt(3) / 3], [1, -np.sqrt(3) / 3]], dtype=np.float64)
+    result = rs_trijectory.calc_relative_vector(r0)
     print(f"1 + 3 = {result}")  # noqa: T201
 
 
