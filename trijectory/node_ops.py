@@ -31,8 +31,8 @@ class TrijectoryRunner(AutoMPTrialRunner):
 
         ma = np.ones(3, dtype=np.float64)
         _param = TrajectoryParam(
-            max_time=2.0,
-            time_step=0.001,
+            max_time=4.0,
+            time_step=0.0001,
             log_rate=100,
             escape_debounce_time=0.3,
             min_distance=0.01,
@@ -71,8 +71,8 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
 
 
 def _register_study(table_ip: str) -> None:
-    vx_size = 5
-    vy_size = 5
+    vx_size = 51
+    vy_size = 51
     vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.2, vx_size)
     vy_start, vy_step = _calc_start_and_step(0, 0.2, vy_size)
 

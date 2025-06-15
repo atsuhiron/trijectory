@@ -23,14 +23,11 @@ fn add(a: i32, b: i32) -> i32 {
 #[pyfunction]
 #[pyo3(name = "calc_relative_vector")]
 fn py_calc_relative_vector<'py>(py: Python<'py>, r_py: PyReadonlyArrayDyn<'py, f64>) -> PyResult<Py<PyArray<f64, ndarray::Dim<[usize; 3]>>>> {
-    // PythonのNumPy配列をRustのndarray::Array2<f64>に変換
     let r_ndarray = r_py.as_array().to_owned().into_dimensionality::<ndarray::Ix2>()
         .map_err(|e| PyValueError::new_err(format!("Input array must be 2D: {}", e)))?;
 
-    // Rustのロジックを呼び出し
     let result_ndarray = calc_relative_vector(&r_ndarray);
 
-    // Rustのndarray::Array3<f64>をPythonのNumPy配列に変換して返す
     Ok(result_ndarray.into_pyarray(py).into())
 }
 

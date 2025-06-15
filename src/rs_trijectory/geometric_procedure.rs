@@ -3,9 +3,6 @@ use ndarray_linalg::Norm;
 
 
 pub fn calc_relative_vector(r: &Array2<f64>) -> Array3<f64> {
-    // let num_bodies = r.shape()[0];
-    // let num_space_dims = r.shape()[1];
-
     // Equivalent of r[np.newaxis, :, :]
     let r_expanded_0 = r.view().insert_axis(Axis(0));
     // Equivalent of r[:, np.newaxis, :]
