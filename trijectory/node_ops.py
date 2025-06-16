@@ -1,7 +1,9 @@
 import argparse
 import json
+import logging
 import math
 import shutil
+from multiprocessing.pool import Pool
 from pathlib import Path
 from typing import Any
 
@@ -13,17 +15,20 @@ from lite_dist2.study_strategies import StudyStrategyModel
 from lite_dist2.suggest_strategies import SuggestStrategyModel
 from lite_dist2.suggest_strategies.base_suggest_strategy import SuggestStrategyParam
 from lite_dist2.table_node_api.table_param import StudyRegisterParam
+from lite_dist2.table_node_api.table_response import StudyRegisteredResponse
 from lite_dist2.type_definitions import RawParamType, RawResultType
 from lite_dist2.value_models.aligned_space_registry import LineSegmentRegistry, ParameterAlignedSpaceRegistry
 from lite_dist2.worker_node.table_node_client import TableNodeClient
-from lite_dist2.worker_node.trial_runner import AutoMPTrialRunner
+from lite_dist2.worker_node.trial_runner import SemiAutoMPTrialRunner
 from lite_dist2.worker_node.worker import Worker
 
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
 
+logger = logging.getLogger(__name__)
 
-class TrijectoryRunner(AutoMPTrialRunner):
+
+class TrijectoryRunner(SemiAutoMPTrialRunner):
     def func(self, parameters: RawParamType, *_args: tuple[Any, ...], **_kwargs: dict[str, Any]) -> RawResultType:
         sqrt3 = np.sqrt(3)
         r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
@@ -70,7 +75,7 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
     return start, step
 
 
-def _register_study(table_ip: str) -> None:
+def _register_study(table_ip: str) -> StudyRegisteredResponse:
     vx_size = 51
     vy_size = 51
     vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.2, vx_size)
@@ -112,7 +117,7 @@ def _register_study(table_ip: str) -> None:
         ),
     )
     client = TableNodeClient(table_ip, port=8000)
-    client.register_study(study_register_param)
+    return client.register_study(study_register_param)
 
 
 def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
@@ -125,13 +130,16 @@ def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) ->
             raise ValueError("Set table node IP")
 
     config = _load_worker_config()
-    worker = Worker(
-        trial_runner=TrijectoryRunner(),
-        ip=table_ip,
-        port=8000,
-        config=config,
-    )
-    worker.start(stop_at_no_trial=stop_at_no_trial)
+
+    with Pool(processes=config.process_num) as pool:
+        worker = Worker(
+            trial_runner=TrijectoryRunner(),
+            ip=table_ip,
+            port=8000,
+            config=config,
+            pool=pool,
+        )
+        worker.start(stop_at_no_trial=stop_at_no_trial)
 
 
 def register_study(table_ip: str | None = None) -> None:
@@ -143,4 +151,5 @@ def register_study(table_ip: str | None = None) -> None:
         if table_ip is None:
             raise ValueError("Set table node IP")
 
-    _register_study(table_ip)
+    registered_result = _register_study(table_ip)
+    logger.info(registered_result.study_id)

@@ -110,4 +110,9 @@ def plot_trajectory(trajectory: ArrF64, metric: ArrF64, param: TrajectoryParam |
 
 
 if __name__ == "__main__":
-    plot_map()
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--study-id", default=None)
+    args = parser.parse_args()
+    plot_map(study_id=args.study_id)
