@@ -101,9 +101,32 @@ class PythonEngine(BaseEngine):
 
         return trajectory, metric, iterations + 1
 
+    @staticmethod
+    def run_without_traj(
+        solver: NumericalMethodsForODE,
+        param: TrajectoryParam,
+        r: ArrF64,
+        v: ArrF64,
+    ) -> int:
+        iterations = int(param.max_time / param.time_step)
+
+        m = np.ones(len(r), dtype=np.float64) if param.mass is None else param.mass
+        escape_metrics = EscapeMetric(int(param.escape_debounce_time / param.time_step))
+        collision_metrics = CollisionMetric(param.min_distance)
+        metrics = (escape_metrics, collision_metrics)
+        _r = r
+        _v = v
+
+        for step_i in range(iterations):
+            _r, _v = solver.step(_r, _v, m, param.time_step)
+            if any(met.detect(_r, _v, m) for met in metrics):
+                return step_i + 1
+
+        return iterations + 1
+
     def life(self, r: ArrF64, v: ArrF64, param: TrajectoryParam) -> float:
         solver = self.create_solver(param)
-        _1, _2, iter_num = self.run(solver, param, r, v)
+        iter_num = self.run_without_traj(solver, param, r, v)
         return iter_num * param.time_step
 
     def trajectory(self, r: ArrF64, v: ArrF64, param: TrajectoryParam) -> tuple[ArrF64, ArrF64, float]:
