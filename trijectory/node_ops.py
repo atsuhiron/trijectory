@@ -36,7 +36,7 @@ class TrijectoryRunner(SemiAutoMPTrialRunner):
 
         ma = np.ones(3, dtype=np.float64)
         _param = TrajectoryParam(
-            max_time=30.0,
+            max_time=3.0,
             time_step=0.0001,
             log_rate=100,
             escape_debounce_time=0.3,
@@ -76,10 +76,10 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
 
 
 def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 31
-    vy_size = 31
-    vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.2, vx_size)
-    vy_start, vy_step = _calc_start_and_step(0, 0.2, vy_size)
+    vx_size = 13
+    vy_size = 13
+    vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.25, vx_size)
+    vy_start, vy_step = _calc_start_and_step(0, 0.25, vy_size)
 
     study_register_param = StudyRegisterParam(
         study=StudyRegistry(

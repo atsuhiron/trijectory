@@ -1,12 +1,13 @@
-mod rs_trijectory;
+pub mod rs_trijectory;
 
-use numpy::{IntoPyArray, PyArray, PyReadonlyArrayDyn};
+pub use rs_trijectory::engine_param::{Method, TrijectoryParam};
+
+use numpy::PyReadonlyArrayDyn;
+use pyo3::PyResult;
 use pyo3::exceptions::PyValueError;
 use pyo3::prelude::*;
-use pyo3::PyResult;
-use pyo3::Python;
 
-use rs_trijectory::geometric_procedure::calc_relative_vector;
+use rs_trijectory::rust_engine::life;
 
 pub fn run_lib() {
     println!("Hello, world!");
@@ -21,21 +22,49 @@ fn add(a: i32, b: i32) -> i32 {
 }
 
 #[pyfunction]
-#[pyo3(name = "calc_relative_vector")]
-fn py_calc_relative_vector<'py>(py: Python<'py>, r_py: PyReadonlyArrayDyn<'py, f64>) -> PyResult<Py<PyArray<f64, ndarray::Dim<[usize; 3]>>>> {
-    let r_ndarray = r_py.as_array().to_owned().into_dimensionality::<ndarray::Ix2>()
+#[pyo3(name = "calc_life")]
+fn py_calc_life<'py>(
+    r_py: PyReadonlyArrayDyn<'py, f64>,
+    v_py: PyReadonlyArrayDyn<'py, f64>,
+    max_time: f64,
+    time_step: f64,
+    escape_debounce_time: f64,
+    min_distance: f64,
+    method_str: &str,
+    m_py: PyReadonlyArrayDyn<'py, f64>,
+) -> PyResult<f64> {
+    let r_ndarray = r_py
+        .as_array()
+        .to_owned()
+        .into_dimensionality::<ndarray::Ix2>()
+        .map_err(|e| PyValueError::new_err(format!("Input array must be 2D: {}", e)))?;
+    let v_ndarray = v_py
+        .as_array()
+        .to_owned()
+        .into_dimensionality::<ndarray::Ix2>()
+        .map_err(|e| PyValueError::new_err(format!("Input array must be 2D: {}", e)))?;
+    let m_ndarray = m_py
+        .as_array()
+        .to_owned()
+        .into_dimensionality::<ndarray::Ix1>()
         .map_err(|e| PyValueError::new_err(format!("Input array must be 2D: {}", e)))?;
 
-    let result_ndarray = calc_relative_vector(&r_ndarray);
-
-    Ok(result_ndarray.into_pyarray(py).into())
+    Ok(life(
+        &r_ndarray,
+        &v_ndarray,
+        max_time,
+        time_step,
+        escape_debounce_time,
+        min_distance,
+        method_str,
+        m_ndarray,
+    ))
 }
 
-
 #[pymodule]
-#[pyo3(name="rs_trijectory")]
+#[pyo3(name = "rs_trijectory")]
 fn trijectory(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(add, m)?)?;
-    m.add_function(wrap_pyfunction!(py_calc_relative_vector, m)?)?;
+    m.add_function(wrap_pyfunction!(py_calc_life, m)?)?;
     Ok(())
 }

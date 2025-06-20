@@ -80,6 +80,8 @@ class PythonEngine(BaseEngine):
         m = np.ones(len(r), dtype=np.float64) if param.mass is None else param.mass
         trajectory = np.zeros((log_size, 2, *r.shape))  # (step, 2, body, space)
         metric = np.zeros(log_size)  # (step,)
+    
+        # metric
         escape_metrics = EscapeMetric(int(param.escape_debounce_time / param.time_step))
         collision_metrics = CollisionMetric(param.min_distance)
         metrics = (escape_metrics, collision_metrics)

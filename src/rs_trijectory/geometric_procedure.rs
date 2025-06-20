@@ -1,7 +1,6 @@
 use ndarray::{Array2, Array3, Axis};
 use ndarray_linalg::Norm;
 
-
 pub fn calc_relative_vector(r: &Array2<f64>) -> Array3<f64> {
     // Equivalent of r[np.newaxis, :, :]
     let r_expanded_0 = r.view().insert_axis(Axis(0));
@@ -11,7 +10,6 @@ pub fn calc_relative_vector(r: &Array2<f64>) -> Array3<f64> {
     // Broadcasting subtraction
     &r_expanded_0 - &r_expanded_1
 }
-
 
 pub fn calc_vectored_inv_square(r: &Array2<f64>) -> Array3<f64> {
     let rel = calc_relative_vector(r);
