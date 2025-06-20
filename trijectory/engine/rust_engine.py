@@ -13,8 +13,8 @@ class RustEngine(BaseEngine):
             v,
             param.max_time,
             param.time_step,
-            param.log_rate,
             param.escape_debounce_time,
+            param.min_distance,
             str(param.method),
             param.mass if param.mass is not None else np.ones(len(r), dtype=np.float64),
         )

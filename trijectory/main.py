@@ -47,7 +47,7 @@ def run_rust_code() -> None:
     ma = np.ones(len(r0), dtype=np.float64)
 
     _param = TrajectoryParam(
-        max_time=3.0,
+        max_time=7.0,
         time_step=0.0001,
         log_rate=100,
         escape_debounce_time=0.3,
@@ -55,10 +55,18 @@ def run_rust_code() -> None:
         method="rk44",
         mass=ma,
     )
-    result = RustEngine().life(r0, v0, _param)
-    print(result)  # noqa: T201
+
+    s_rust = time.perf_counter()
+    rust_result = RustEngine().life(r0, v0, _param)
+    e_rust = time.perf_counter()
+    print(f"rust  : {rust_result:.6f} ({e_rust - s_rust:.6f} sec)")  # noqa: T201
+
+    s_python = time.perf_counter()
+    python_result = PythonEngine().life(r0, v0, _param)
+    e_python = time.perf_counter()
+    print(f"python: {python_result:.6f} ({e_python - s_python:.6f} sec)")  # noqa: T201
 
 
 if __name__ == "__main__":
-    # run_rust_code()
-    run_life_gird_in_local()
+    run_rust_code()
+    # run_life_gird_in_local()
