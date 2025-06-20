@@ -13,3 +13,4 @@ class TrajectoryParam:
     min_distance: float
     method: Literal["euler", "rk22", "rk44"]
     mass: ArrF64 | None
+    backend: Literal["rust", "python"] = "rust"

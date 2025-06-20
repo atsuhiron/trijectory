@@ -24,6 +24,7 @@ from lite_dist2.worker_node.worker import Worker
 
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
+from trijectory.engine.rust_engine import RustEngine
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +45,11 @@ class TrijectoryRunner(SemiAutoMPTrialRunner):
             method="rk44",
             mass=ma,
         )
-        return PythonEngine().life(r0, v0, _param)
+        if _param.backend == "rust":
+            return RustEngine().life(r0, v0, _param)
+        if _param.backend == "python":
+            return PythonEngine().life(r0, v0, _param)
+        raise ValueError(f"Unknown backend {_param.backend}")
 
 
 def _load_worker_config() -> WorkerConfig:

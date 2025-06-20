@@ -1,9 +1,9 @@
 import numpy as np
 
-import rs_trijectory
+import trijectory.rs_trijectory as rs_trijectory
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.base_engine import BaseEngine
-from type_aliases import ArrF64
+from trijectory.type_aliases import ArrF64
 
 
 class RustEngine(BaseEngine):
