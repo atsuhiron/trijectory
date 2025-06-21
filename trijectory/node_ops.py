@@ -49,7 +49,8 @@ class TrijectoryRunner(SemiAutoMPTrialRunner):
             return RustEngine().life(r0, v0, _param)
         if _param.backend == "python":
             return PythonEngine().life(r0, v0, _param)
-        raise ValueError(f"Unknown backend {_param.backend}")
+        msg = f"Unknown backend {_param.backend}"
+        raise ValueError(msg)
 
 
 def _load_worker_config() -> WorkerConfig:

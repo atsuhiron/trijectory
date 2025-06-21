@@ -3,9 +3,9 @@ import time
 import numpy as np
 from lite_dist2.table_node_api.start_table_api import start_in_thread
 
-from engine.rust_engine import RustEngine
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.engine.python_engine import PythonEngine
+from trijectory.engine.rust_engine import RustEngine
 from trijectory.node_ops import register_study, start_worker
 from trijectory.plotter import plot_map, plot_trajectory
 

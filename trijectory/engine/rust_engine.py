@@ -1,8 +1,8 @@
 import numpy as np
 
-import trijectory.rs_trijectory as rs_trijectory
-from trijectory.engine.engine_param import TrajectoryParam
+from trijectory import rs_trijectory
 from trijectory.engine.base_engine import BaseEngine
+from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.type_aliases import ArrF64
 
 
@@ -20,4 +20,4 @@ class RustEngine(BaseEngine):
         )
 
     def trajectory(self, r: ArrF64, v: ArrF64, param: TrajectoryParam) -> tuple[ArrF64, ArrF64, float]:
-        pass
+        raise NotImplementedError
