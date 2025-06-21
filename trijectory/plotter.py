@@ -65,9 +65,7 @@ def _extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
 
 
 def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x_axis_name: str | None) -> None:
-    plt.imshow(arr)
-    plt.xticks(ticks=np.arange(len(x_axis)), labels=np.round(x_axis, 2))
-    plt.yticks(ticks=np.arange(len(y_axis)), labels=np.round(y_axis, 2))
+    plt.imshow(arr, origin="upper", extent=(float(x_axis[0]), float(x_axis[-1]), float(y_axis[0]), float(y_axis[-1])))
     plt.xlabel(x_axis_name)
     plt.ylabel(y_axis_name)
     plt.colorbar()
