@@ -5,7 +5,6 @@ import math
 import shutil
 from multiprocessing.pool import Pool
 from pathlib import Path
-from typing import Any
 
 import numpy as np
 from lite_dist2.common import portablize
@@ -18,6 +17,7 @@ from lite_dist2.table_node_api.table_param import StudyRegisterParam
 from lite_dist2.table_node_api.table_response import StudyRegisteredResponse
 from lite_dist2.type_definitions import RawParamType, RawResultType
 from lite_dist2.value_models.aligned_space_registry import LineSegmentRegistry, ParameterAlignedSpaceRegistry
+from lite_dist2.value_models.const_param import ConstParam
 from lite_dist2.worker_node.table_node_client import TableNodeClient
 from lite_dist2.worker_node.trial_runner import SemiAutoMPTrialRunner
 from lite_dist2.worker_node.worker import Worker
@@ -30,18 +30,18 @@ logger = logging.getLogger(__name__)
 
 
 class TrijectoryRunner(SemiAutoMPTrialRunner):
-    def func(self, parameters: RawParamType, *_args: tuple[Any, ...], **_kwargs: dict[str, Any]) -> RawResultType:
+    def func(self, parameters: RawParamType, *_args: object, **kwargs: object) -> RawResultType:
         sqrt3 = np.sqrt(3)
         r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
         v0 = np.array([[*parameters], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.75
 
         ma = np.ones(3, dtype=np.float64)
         _param = TrajectoryParam(
-            max_time=3.0,
-            time_step=0.0001,
-            log_rate=100,
-            escape_debounce_time=0.3,
-            min_distance=0.01,
+            max_time=self.get_typed("max_time", float, kwargs),
+            time_step=self.get_typed("time_step", float, kwargs),
+            log_rate=self.get_typed("log_rate", int, kwargs),
+            escape_debounce_time=self.get_typed("escape_debounce_time", float, kwargs),
+            min_distance=self.get_typed("min_distance", float, kwargs),
             method="rk44",
             mass=ma,
         )
@@ -82,10 +82,17 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
 
 
 def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 13
-    vy_size = 13
+    vx_size = 131
+    vy_size = 131
     vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.25, vx_size)
     vy_start, vy_step = _calc_start_and_step(0, 0.25, vy_size)
+    const_param = {
+        "max_time": 32.0,
+        "time_step": 0.0001,
+        "log_rate": 100,
+        "escape_debounce_time": 0.3,
+        "min_distance": 0.01,
+    }
 
     study_register_param = StudyRegisterParam(
         study=StudyRegistry(
@@ -101,6 +108,7 @@ def _register_study(table_ip: str) -> StudyRegisteredResponse:
             ),
             result_type="scalar",
             result_value_type="float",
+            const_param=ConstParam.from_dict(const_param),
             parameter_space=ParameterAlignedSpaceRegistry(
                 type="aligned",
                 axes=[
