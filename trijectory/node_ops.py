@@ -72,20 +72,16 @@ def _load_worker_config() -> WorkerConfig:
 
 
 def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[float, float]:
-    if size % 2 == 0:
-        msg = "size must be odd"
-        raise ValueError(msg)
-
     start = center - half_width
     step = 2 * half_width / (size - 1)
     return start, step
 
 
 def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 131
-    vy_size = 131
-    vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 2 / 3, 0.25, vx_size)
-    vy_start, vy_step = _calc_start_and_step(0, 0.25, vy_size)
+    vx_size = 12 * 2
+    vy_size = 12 * 2
+    vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 1.1 / 3, 0.7, vx_size)
+    vy_start, vy_step = _calc_start_and_step(0.1, 0.7, vy_size)
     const_param = {
         "max_time": 32.0,
         "time_step": 0.0001,

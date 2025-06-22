@@ -65,7 +65,11 @@ def _extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
 
 
 def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x_axis_name: str | None) -> None:
-    plt.imshow(arr, origin="upper", extent=(float(x_axis[0]), float(x_axis[-1]), float(y_axis[0]), float(y_axis[-1])))
+    plt.imshow(
+        arr,
+        origin="lower",
+        extent=(float(x_axis[0]), float(x_axis[-1]), float(y_axis[0]), float(y_axis[-1])),
+    )
     plt.xlabel(x_axis_name)
     plt.ylabel(y_axis_name)
     plt.colorbar()
@@ -75,7 +79,7 @@ def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | No
 def plot_map(study_id: str | None = None) -> None:
     storage = _extract_storage(_load_curriculum(), study_id)
     arr, y_axis, x_axis = _extract_result_arr(storage)
-    y_name, x_name = _extract_axis_name(storage)
+    x_name, y_name = _extract_axis_name(storage)
     _plot_map(arr, y_axis, x_axis, y_name, x_name)
 
 
