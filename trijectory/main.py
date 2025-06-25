@@ -47,8 +47,8 @@ def run_rust_code() -> None:
     ma = np.ones(len(r0), dtype=np.float64)
 
     _param = TrajectoryParam(
-        max_time=7.0,
-        time_step=0.0001,
+        max_time=1.0,
+        time_step=0.001,
         log_rate=100,
         escape_debounce_time=0.3,
         min_distance=0.01,
@@ -69,4 +69,4 @@ def run_rust_code() -> None:
 
 if __name__ == "__main__":
     run_rust_code()
-    # run_life_gird_in_local()
+    run_life_gird_in_local()

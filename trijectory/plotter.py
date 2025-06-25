@@ -7,7 +7,6 @@ import numpy as np
 from lite_dist2.common import numerize
 from lite_dist2.curriculum_models.curriculum import CurriculumModel
 from lite_dist2.curriculum_models.study_portables import StudyStorage
-from lite_dist2.value_models.point import ScalarValue
 
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.type_aliases import ArrF64
@@ -34,14 +33,13 @@ def _extract_storage(curriculum: CurriculumModel, study_id: str | None = None) -
 
 
 def _extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
-    z_list = list(filter(lambda z: isinstance(z, ScalarValue), [r.result for r in storage.results]))
     xyz_list: list[tuple[float, float, float]] = [
         (
-            numerize("float", r.params[0].value),
-            numerize("float", r.params[1].value),
-            numerize("float", z.value),
+            numerize("float", xyz[0]),
+            numerize("float", xyz[1]),
+            numerize("float", xyz[-1]),
         )
-        for r, z in zip(storage.results, z_list, strict=True)
+        for xyz in storage.results.values
     ]
     xyz_list = sorted(xyz_list, key=lambda r: r[1])
 
@@ -60,8 +58,8 @@ def _extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
 
 
 def _extract_axis_name(storage: StudyStorage) -> tuple[str | None, str | None]:
-    mapping = storage.results[0]
-    return mapping.params[0].name, mapping.params[1].name
+    param_info = storage.results.params_info
+    return param_info[0].name, param_info[1].name
 
 
 def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | None, x_axis_name: str | None) -> None:
