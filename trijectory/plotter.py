@@ -32,6 +32,12 @@ def _extract_storage(curriculum: CurriculumModel, study_id: str | None = None) -
     return storages[0]
 
 
+def _load_storage(path: Path) -> StudyStorage:
+    with path.open("r") as f:
+        d = json.load(f)
+        return StudyStorage.model_validate(d)
+
+
 def _extract_result_arr(storage: StudyStorage) -> tuple[ArrF64, ArrF64, ArrF64]:
     xyz_list: list[tuple[float, float, float]] = [
         (
@@ -74,8 +80,13 @@ def _plot_map(arr: ArrF64, y_axis: ArrF64, x_axis: ArrF64, y_axis_name: str | No
     plt.show()
 
 
-def plot_map(study_id: str | None = None) -> None:
-    storage = _extract_storage(_load_curriculum(), study_id)
+def plot_map(file_path: Path | None = None, study_id: str | None = None) -> None:
+    if study_id is not None:
+        storage = _extract_storage(_load_curriculum(), study_id)
+    elif file_path is not None and file_path.exists():
+        storage = _load_storage(file_path)
+    else:
+        raise ValueError
     arr, y_axis, x_axis = _extract_result_arr(storage)
     x_name, y_name = _extract_axis_name(storage)
     _plot_map(arr, y_axis, x_axis, y_name, x_name)
@@ -92,6 +103,12 @@ def plot_trajectory(trajectory: ArrF64, metric: ArrF64, param: TrajectoryParam |
             marker=None,
             color=colors[body_i],
             label=str(body_i),
+        )
+        axes[0].plot(
+            [trajectory[0, 0, body_i, 0]],
+            [trajectory[0, 0, body_i, 1]],
+            marker="o",
+            color=colors[body_i],
         )
     axes[0].legend()
 
@@ -113,6 +130,7 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser()
-    parser.add_argument("--study-id", default=None)
+    parser.add_argument("--id", default=None)
+    parser.add_argument("--path", default=None)
     args = parser.parse_args()
-    plot_map(study_id=args.study_id)
+    plot_map(file_path=Path(args.path), study_id=args.study_id)
