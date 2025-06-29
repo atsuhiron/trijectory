@@ -13,6 +13,7 @@ ignore = [
     "FBT002",
     "EM101",
     "TRY003",
+    "PLR0913",
 ]
 
 [lint.per-file-ignores]

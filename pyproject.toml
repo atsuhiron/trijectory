@@ -14,10 +14,11 @@ dependencies = [
 [project.scripts]
 register-study = "trijectory.node_ops:register_study"
 start-worker = "trijectory.node_ops:start_worker"
-run-lib = "trijectory.main:run_lib"
+plot = "trijectory.plotter:main"
 
 [dependency-groups]
 dev = [
+    "imageio>=2.37.0",
     "matplotlib>=3.10.3",
     "pytest>=8.3.5",
     "ruff>=0.12.0",

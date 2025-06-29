@@ -1,7 +1,6 @@
 import argparse
 import json
 import logging
-import math
 import shutil
 from multiprocessing.pool import Pool
 from pathlib import Path
@@ -32,8 +31,9 @@ logger = logging.getLogger(__name__)
 class TrijectoryRunner(SemiAutoMPTrialRunner):
     def func(self, parameters: RawParamType, *_args: object, **kwargs: object) -> RawResultType:
         sqrt3 = np.sqrt(3)
-        r0 = np.array([[0, sqrt3 * 2 / 3], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
-        v0 = np.array([[*parameters], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.75
+        y, vx, vy = parameters
+        r0 = np.array([[0, y], [-1, -sqrt3 / 3], [1, -sqrt3 / 3]], dtype=np.float64)
+        v0 = np.array([[vx, vy], [-3 / 4, sqrt3 / 4], [-3 / 4, -sqrt3 / 4]], dtype=np.float64) * 0.75
 
         ma = np.ones(3, dtype=np.float64)
         _param = TrajectoryParam(
@@ -78,10 +78,12 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
 
 
 def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 12 * 2
-    vy_size = 12 * 2
-    vx_start, vx_step = _calc_start_and_step(math.sqrt(3) * 1.1 / 3, 0.7, vx_size)
-    vy_start, vy_step = _calc_start_and_step(0.1, 0.7, vy_size)
+    vx_size = 30
+    vy_size = 30
+    y_size = 5
+    vx_start, vx_step = _calc_start_and_step(0.7, 0.8, vx_size)
+    vy_start, vy_step = _calc_start_and_step(0.35, 0.8, vy_size)
+    y_start, y_step = _calc_start_and_step(np.sqrt(3) * 2 / 3, 0.1, y_size)
     const_param = {
         "max_time": 32.0,
         "time_step": 0.0001,
@@ -108,6 +110,13 @@ def _register_study(table_ip: str) -> StudyRegisteredResponse:
             parameter_space=ParameterAlignedSpaceRegistry(
                 type="aligned",
                 axes=[
+                    LineSegmentRegistry(
+                        name="y",
+                        type="float",
+                        size=str(portablize("int", y_size)),
+                        step=portablize("float", y_step),
+                        start=portablize("float", y_start),
+                    ),
                     LineSegmentRegistry(
                         name="vx",
                         type="float",
@@ -152,7 +161,7 @@ def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) ->
         worker.start(stop_at_no_trial=stop_at_no_trial)
 
 
-def register_study(table_ip: str | None = None) -> None:
+def register_study(table_ip: str | None = None) -> str:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -163,3 +172,4 @@ def register_study(table_ip: str | None = None) -> None:
 
     registered_result = _register_study(table_ip)
     logger.info(registered_result.study_id)
+    return registered_result.study_id
