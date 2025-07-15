@@ -7,10 +7,31 @@ import imageio
 import matplotlib.pyplot as plt
 import numpy as np
 from lite_dist2.common import numerize
+from lite_dist2.curriculum_models.curriculum import CurriculumModel
 from lite_dist2.curriculum_models.study_portables import StudyStorage
 
 from trijectory.engine.engine_param import TrajectoryParam
 from trijectory.type_aliases import ArrF64
+
+
+def _load_curriculum() -> CurriculumModel:
+    with Path("curriculum.json").open("r") as f:
+        json_data = json.load(f)
+        return CurriculumModel.model_validate(json_data)
+
+
+def _extract_storage(curriculum: CurriculumModel, study_id: str | None = None) -> StudyStorage:
+    if len(curriculum.storages) == 0:
+        msg = "No storage is found in curriculum"
+        raise ValueError(msg)
+
+    if study_id is None:
+        return max(curriculum.storages, key=lambda s: s.registered_timestamp)
+    storages = list(filter(lambda s: s.study_id == study_id, curriculum.storages))
+    if len(storages) != 1:
+        msg = "0 or more than one storage is found in curriculum"
+        raise ValueError(msg)
+    return storages[0]
 
 
 def _load_storage(path: Path) -> StudyStorage:
@@ -156,15 +177,17 @@ def _plot_map_3d(
     with imageio.get_writer(Path("trijectory.gif"), mode="I", fps=fps, loop=4) as writer:
         for image_path in image_paths:
             image = imageio.v3.imread(image_path)
-            writer.append_data(image)
+            writer.append_data(image)  # ty: ignore[unresolved-attribute]
 
     for image_path in image_paths:
         image_path.unlink()
     temp_dir.rmdir()
 
 
-def plot_map(file_path: Path | None = None, fps: int = 10) -> None:
-    if file_path is not None and file_path.exists():
+def plot_map(file_path: Path | None = None, study_id: str | None = None, fps: int = 10) -> None:
+    if study_id is not None:
+        storage = _extract_storage(_load_curriculum(), study_id)
+    elif file_path is not None and file_path.exists():
         storage = _load_storage(file_path)
     else:
         raise ValueError
