@@ -78,12 +78,12 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
 
 
 def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 30
-    vy_size = 30
+    vx_size = 20
+    vy_size = 20
     y_size = 5
     vx_start, vx_step = _calc_start_and_step(0.7, 0.8, vx_size)
     vy_start, vy_step = _calc_start_and_step(0.35, 0.8, vy_size)
-    y_start, y_step = _calc_start_and_step(np.sqrt(3) * 2 / 3, 0.1, y_size)
+    y_start, y_step = _calc_start_and_step(np.sqrt(3) * 2 / 3, 0.08, y_size)
     const_param = {
         "max_time": 32.0,
         "time_step": 0.0001,
@@ -173,3 +173,23 @@ def register_study(table_ip: str | None = None) -> str:
     registered_result = _register_study(table_ip)
     logger.info(registered_result.study_id)
     return registered_result.study_id
+
+
+def save_study_result(table_ip: str | None = None) -> None:
+    if table_ip is None:
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-i", "--table-ip", default=None, type=str)
+        args = parser.parse_args()
+        table_ip = args.table_ip
+        if table_ip is None:
+            raise ValueError("Set table node IP")
+
+    client = TableNodeClient(table_ip, port=8000)
+    study_result = client.study(name="trijectory")
+    result = study_result.result
+    if result is None:
+        return
+
+    save_path = Path(__file__).parent.parent / f"{result.study_id}.json"
+    with save_path.open("w") as f:
+        json.dump(result.model_dump(mode="json"), f, ensure_ascii=False, indent=4)
