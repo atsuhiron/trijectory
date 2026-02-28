@@ -1,4 +1,5 @@
 import argparse
+import asyncio
 import json
 import logging
 import shutil
@@ -139,7 +140,7 @@ async def _register_study(table_ip: str) -> StudyRegisteredResponse:
     return await client.register_study(study_register_param)
 
 
-def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
+async def start_worker_async(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -158,10 +159,14 @@ def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) ->
             config=config,
             pool=pool,
         )
-        worker.start(stop_at_no_trial=stop_at_no_trial)
+        await worker.start(stop_at_no_trial=stop_at_no_trial)
 
 
-async def register_study(table_ip: str | None = None) -> str:
+def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
+    asyncio.run(start_worker_async(table_ip, stop_at_no_trial))
+
+
+def register_study(table_ip: str | None = None) -> str:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -170,12 +175,12 @@ async def register_study(table_ip: str | None = None) -> str:
         if table_ip is None:
             raise ValueError("Set table node IP")
 
-    registered_result = await _register_study(table_ip)
+    registered_result = asyncio.run(_register_study(table_ip))
     logger.info(registered_result.study_id)
     return registered_result.study_id
 
 
-async def save_study_result(table_ip: str | None = None) -> None:
+def save_study_result(table_ip: str | None = None) -> None:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -185,7 +190,7 @@ async def save_study_result(table_ip: str | None = None) -> None:
             raise ValueError("Set table node IP")
 
     client = TableNodeClient(table_ip, port=8000)
-    study_result = await client.study(name="trijectory")
+    study_result = asyncio.run(client.study(name="trijectory"))
     if study_result is None:
         return
     result = study_result.result

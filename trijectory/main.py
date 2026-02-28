@@ -1,4 +1,3 @@
-import asyncio
 import time
 
 import numpy as np
@@ -11,10 +10,10 @@ from trijectory.node_ops import register_study, start_worker
 from trijectory.plotter import plot_map, plot_trajectory
 
 
-async def run_life_gird_in_local() -> None:
+def run_life_gird_in_local() -> None:
     table_thread = start_in_thread()
-    await asyncio.sleep(1)
-    study_id = await register_study("127.0.0.1")
+    time.sleep(1)
+    study_id = register_study("127.0.0.1")
     start_worker("127.0.0.1", stop_at_no_trial=True)
 
     table_thread.stop()
