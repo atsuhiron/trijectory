@@ -138,8 +138,8 @@ def _plot_map_2d(
         vmax=v_max,
         vmin=v_min,
     )
-    plt.xlabel(x_axis_name)
-    plt.ylabel(y_axis_name)
+    plt.xlabel(x_axis_name or "")
+    plt.ylabel(y_axis_name or "")
     plt.colorbar()
     if title:
         plt.title(title)
@@ -199,14 +199,14 @@ def plot_map(file_path: Path | None = None, study_id: str | None = None, fps: in
             _plot_map_2d(arr, y_axis, x_axis, y_name, x_name)
         case 4:
             arr, w_axis, y_axis_list, x_axis_list = _extract_result_arr3(storage.results.values)
-            w_name, x_name, y_name = _extract_axis_name(storage)
+            _, x_name, y_name = _extract_axis_name(storage)
             _plot_map_3d(arr, w_axis, y_axis_list, x_axis_list, y_name, x_name, fps)
         case _:
             raise ValueError
 
 
 def plot_trajectory(trajectory: ArrF64, metric: ArrF64, param: TrajectoryParam | None) -> None:
-    fig, axes = plt.subplots(nrows=1, ncols=2, sharex=False)
+    _, axes = plt.subplots(nrows=1, ncols=2, sharex=False)
     colors = ("r", "g", "b")
     for body_i in range(trajectory.shape[2]):  # (step, 2, body, space)
         axes[0].plot(

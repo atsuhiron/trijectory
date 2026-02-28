@@ -1,5 +1,5 @@
 import abc
-from typing import Literal
+from typing import Literal, override
 
 import numpy as np
 
@@ -81,7 +81,8 @@ class CollisionMetric(Metric):
     def __init__(self, min_distance: float) -> None:
         super().__init__(1, min_distance, "lt")
 
-    def measure(self, r: ArrF64, _v: ArrF64, _mass: ArrF64) -> float:
+    @override
+    def measure(self, r: ArrF64, v: ArrF64, mass: ArrF64) -> float:
         rel = geo_func.calc_relative_vector(r)
         dist = np.linalg.norm(rel, axis=2)
         flatten_dist = dist[np.triu_indices(dist.shape[0], k=1)]

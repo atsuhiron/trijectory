@@ -198,3 +198,5 @@ curriculum.json
 
 *.gif
 temp/
+trials/
+.vscode/

@@ -77,13 +77,13 @@ def _calc_start_and_step(center: float, half_width: float, size: int) -> tuple[f
     return start, step
 
 
-def _register_study(table_ip: str) -> StudyRegisteredResponse:
-    vx_size = 30
-    vy_size = 30
-    y_size = 20
+async def _register_study(table_ip: str) -> StudyRegisteredResponse:
+    vx_size = 300
+    vy_size = 300
+    y_size = 50
     vx_start, vx_step = _calc_start_and_step(0.7, 0.8, vx_size)
     vy_start, vy_step = _calc_start_and_step(0.35, 0.8, vy_size)
-    y_start, y_step = _calc_start_and_step(np.sqrt(3) * 2 / 3, 0.08, y_size)
+    y_start, y_step = _calc_start_and_step(np.sqrt(3) * 2 / 3, 0.07, y_size)
     const_param = {
         "max_time": 32.0,
         "time_step": 0.0001,
@@ -136,7 +136,7 @@ def _register_study(table_ip: str) -> StudyRegisteredResponse:
         ),
     )
     client = TableNodeClient(table_ip, port=8000)
-    return client.register_study(study_register_param)
+    return await client.register_study(study_register_param)
 
 
 def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
@@ -161,7 +161,7 @@ def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) ->
         worker.start(stop_at_no_trial=stop_at_no_trial)
 
 
-def register_study(table_ip: str | None = None) -> str:
+async def register_study(table_ip: str | None = None) -> str:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -170,12 +170,12 @@ def register_study(table_ip: str | None = None) -> str:
         if table_ip is None:
             raise ValueError("Set table node IP")
 
-    registered_result = _register_study(table_ip)
+    registered_result = await _register_study(table_ip)
     logger.info(registered_result.study_id)
     return registered_result.study_id
 
 
-def save_study_result(table_ip: str | None = None) -> None:
+async def save_study_result(table_ip: str | None = None) -> None:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -185,7 +185,7 @@ def save_study_result(table_ip: str | None = None) -> None:
             raise ValueError("Set table node IP")
 
     client = TableNodeClient(table_ip, port=8000)
-    study_result = client.study(name="trijectory")
+    study_result = await client.study(name="trijectory")
     if study_result is None:
         return
     result = study_result.result
