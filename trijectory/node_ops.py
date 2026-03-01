@@ -140,7 +140,7 @@ async def _register_study(table_ip: str) -> StudyRegisteredResponse:
     return await client.register_study(study_register_param)
 
 
-async def start_worker_async(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
+def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
     if table_ip is None:
         parser = argparse.ArgumentParser()
         parser.add_argument("-i", "--table-ip", default=None, type=str)
@@ -159,11 +159,7 @@ async def start_worker_async(table_ip: str | None = None, stop_at_no_trial: bool
             config=config,
             pool=pool,
         )
-        await worker.start(stop_at_no_trial=stop_at_no_trial)
-
-
-def start_worker(table_ip: str | None = None, stop_at_no_trial: bool = False) -> None:
-    asyncio.run(start_worker_async(table_ip, stop_at_no_trial))
+        worker.start(stop_at_no_trial=stop_at_no_trial)
 
 
 def register_study(table_ip: str | None = None) -> str:
